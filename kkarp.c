@@ -13,20 +13,14 @@
 #include <limits.h>
 #include <ctype.h>
 
+#define MAX_ITER 25000
+
 
 /* Function that runs KK algorithm on an an array of numbers
     Returns the residue of the partition
  */
-long long int kk(long long int nums[], int size)
+long long int kk(long long int* nums, int size)
 {
-    // For testing
-    for(int u = 0; u < size; u++)
-    {
-        printf("%lld ", nums[u]);
-    }
-    printf("\n");
-    
-    
     int greatestIndex = 0;
     long long int greatest = 0;
     int secgreatestIndex = 0;
@@ -46,18 +40,20 @@ long long int kk(long long int nums[], int size)
                 greatestIndex  = i;
             }
         }
+        //printf("greatest: %lld\n", greatest);
         // Change to 0
         nums[greatestIndex] = 0;
-    
+        
         // Find second greatest
         for(j = 0; j < size; j++)
         {
             if(nums[j] > secgreatest)
             {
-                secgreatest = nums[i];
-                secgreatestIndex  = i;
+                secgreatest = nums[j];
+                secgreatestIndex  = j;
             }
         }
+        //printf("second greatest: %lld\n", secgreatest);
         // Calculate |ai - aj|
         magn = greatest - secgreatest;
         // Replace second greatest with 0 and the greatest with the difference
@@ -69,13 +65,6 @@ long long int kk(long long int nums[], int size)
         greatest = 0;
         secgreatestIndex = 0;
         secgreatest = 0;
-        
-        // for testing
-        for(int u = 0; u < size; u++)
-        {
-            printf("%lld ", nums[u]);
-        }
-        printf("\n");
     }
     
     // Calculate residue
@@ -87,14 +76,108 @@ long long int kk(long long int nums[], int size)
     return residue;
 }
 
+
+// Function that generates 64-bit random number
+long long int getrand()
+{
+    long long int r = (long long int) rand() << 32 | rand();
+    return (r % ((long long int) pow(10,12) + 1));
+}
+
+
+// Function that generates entirely random sequence of numbers
+long long int* getrandNums(long long int* outnums, int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        outnums[i] = getrand();
+    }
+    return outnums;
+}
+
+// Function that generates random signs
+int* getrandSigns(int* outsigns, int size)
+{
+    long long int num = 0;
+    for(int i = 0; i < size; i++)
+    {
+        num = getrand();
+        // Divide probability in half by evens and odds
+        if(num % 2 == 0)
+        {
+            outsigns[i] = 1;
+        }
+        else
+        {
+            outsigns[i] = -1;
+        }
+    }
+    
+    return outsigns;
+}
+
+
+// Calculate residue for sequence representation
+long long int seqResidue(long long int* nums, int* s, int size)
+{
+    int long long cum = 0;
+    for(int i = 0; i < size; i++)
+    {
+        cum += nums[i] * s[i];
+    }
+    return cum;
+}
+
+
+
+// Function that implements Repeated Random
+long long int repRand(int size)
+{
+    // Declare and assign random values to S
+    long long int* nums = malloc(sizeof(long long int) * size);
+    nums = getrandNums(nums, size);
+    int* signs = malloc(sizeof(int) * size);
+    signs = getrandSigns(signs, size);
+    
+    
+    for(int j = 0; j < MAX_ITER; j++)
+    {
+        // Declare and assign random values to S'
+        long long int* numsP = malloc(sizeof(long long int) * size);
+        int* signsP = malloc(sizeof(int) * size);
+        numsP = getrandNums(numsP, size);
+        signsP = getrandSigns(signsP, size);
+        
+        if(seqResidue(numsP, signsP, size) < seqResidue(nums, signs, size))
+        {
+            nums = numsP;
+            signs = signsP;
+            free(numsP);
+            free(signsP);
+        }
+        else
+        {
+            free(numsP);
+            free(signsP);
+        }
+    }
+    return seqResidue(nums, signs, size);
+}
+
+
 // MAIN FOR TESTING
 int main()
 {
+    int seed = time(NULL);
+    srand(seed);
+
     // Pdf example
-    long long int arr[] = {10,8,7,6,5};
+    long long int array[] = {10,8,7,6,5};
+    long long int* arr = array;
     int n = 5;
     printf("Residue is: %lld \n", kk(arr,n));
     
+    printf("Repeated Random Residue is: %lld \n", repRand(10000));
     
     return 0;
 }
