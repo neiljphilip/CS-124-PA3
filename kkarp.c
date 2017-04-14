@@ -17,8 +17,16 @@
 /* Function that runs KK algorithm on an an array of numbers
     Returns the residue of the partition
  */
-long long int kk(long long int* nums, int size)
+long long int kk(long long int nums[], int size)
 {
+    // For testing
+    for(int u = 0; u < size; u++)
+    {
+        printf("%lld ", nums[u]);
+    }
+    printf("\n");
+    
+    
     int greatestIndex = 0;
     long long int greatest = 0;
     int secgreatestIndex = 0;
@@ -61,6 +69,13 @@ long long int kk(long long int* nums, int size)
         greatest = 0;
         secgreatestIndex = 0;
         secgreatest = 0;
+        
+        // for testing
+        for(int u = 0; u < size; u++)
+        {
+            printf("%lld ", nums[u]);
+        }
+        printf("\n");
     }
     
     // Calculate residue
@@ -72,8 +87,14 @@ long long int kk(long long int* nums, int size)
     return residue;
 }
 
-
-int main() {
-    printf("Hello World!");
+// MAIN FOR TESTING
+int main()
+{
+    // Pdf example
+    long long int arr[] = {10,8,7,6,5};
+    int n = 5;
+    printf("Residue is: %lld \n", kk(arr,n));
+    
+    
     return 0;
 }
