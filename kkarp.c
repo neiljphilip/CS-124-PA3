@@ -1,9 +1,9 @@
 //
 // Created by Neil Philip on 4/12/17.
 //
-
+#include <stdio.h>
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    printf("Hello World!");
     return 0;
 }
