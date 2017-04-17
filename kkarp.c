@@ -165,6 +165,58 @@ long long int repRand(int size)
 }
 
 
+// Function that implements Hill Climbing
+long long int hillClimb(int size)
+{
+    // Declare and assign random values to S
+    long long int* nums = malloc(sizeof(long long int) * size);
+    nums = getrandNums(nums, size);
+    int* signs = malloc(sizeof(int) * size);
+    signs = getrandSigns(signs, size);
+    long long int i,j;
+    
+    for(int j = 0; j < MAX_ITER; j++)
+    {
+        // Declare and assign original values to S'
+        long long int* numsP = malloc(sizeof(long long int) * size);
+        int* signsP = malloc(sizeof(int) * size);
+        numsP = nums;
+        signsP = signs;
+        
+        // Select random indeces
+        i = getrand() % (size+1);
+        j = getrand() % (size+1);
+        while(i == j) // i =/= j
+        {
+            j = getrand() % (size+1);
+        }
+        
+        // Change S' to be a neighbor of S
+        signsP[i] = -1 * signsP[i];
+        if(getrand() % 2 == 0)
+        {
+            signsP[j] = -1 * signsP[j];
+        }
+        
+        if(seqResidue(numsP, signsP, size) < seqResidue(nums, signs, size))
+        {
+            nums = numsP;
+            signs = signsP;
+            free(numsP);
+            free(signsP);
+        }
+        else
+        {
+            free(numsP);
+            free(signsP);
+        }
+    }
+    return seqResidue(nums, signs, size);
+}
+
+
+
+
 // MAIN FOR TESTING
 int main()
 {
@@ -177,7 +229,10 @@ int main()
     int n = 5;
     printf("Residue is: %lld \n", kk(arr,n));
     
-    printf("Repeated Random Residue is: %lld \n", repRand(10000));
+    printf("Repeated Random Residue is: %lld \n", repRand(1000));
+    
+    printf("Hill Climbing Residue is: %lld \n", hillClimb(1000));
     
     return 0;
 }
+
