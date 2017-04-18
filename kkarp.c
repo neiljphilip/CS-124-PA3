@@ -17,7 +17,7 @@
 
 
 /* Function that runs KK algorithm on an an array of numbers
-    Returns the residue of the partition
+ Returns the residue of the partition
  */
 long long int kk(long long int* nums, int size)
 {
@@ -59,7 +59,7 @@ long long int kk(long long int* nums, int size)
         // Replace second greatest with 0 and the greatest with the difference
         nums[secgreatestIndex] = 0;
         nums[greatestIndex] = magn;
-    
+        
         // Reset for next iteration
         greatestIndex = 0;
         greatest = 0;
@@ -138,11 +138,8 @@ long long int repRand(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-<<<<<<< HEAD
-=======
     
     
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
     
     for(int j = 0; j < MAX_ITER; j++)
     {
@@ -153,10 +150,6 @@ long long int repRand(int size)
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
             free(signs);
-<<<<<<< HEAD
-            signs = malloc(sizeof(int) * size);
-=======
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
@@ -174,8 +167,11 @@ int* getNeighbor(int* signs, int size)
 {
     int* signsP = malloc(sizeof(int) * size); // S'
     // Declare and assign original values to S'
-    signsP = signs;
-    // Select random indeces
+    //signsP = signs;
+    for(int i = 0; i < size; i++){
+        signsP[i] = signs[i];
+    }
+    // Select random indices
     int i = rand() % size;
     int j = rand() % size;
     while(i == j) // i =/= j
@@ -209,28 +205,15 @@ long long int hillClimb(int size)
         // Check if neighbor is better
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
-<<<<<<< HEAD
-            //free(signs);
-            //signs = realloc(signs, sizeof(long long int) * size);
-=======
             free(signs);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
         {
-<<<<<<< HEAD
-            //free(signsP);
-        }
-    }
-    long long int finalRes = seqResidue(nums, signs, size);
-    printf("final res is %lld\n",finalRes);
-=======
             free(signsP);
         }
     }
     long long int finalRes = seqResidue(nums, signs, size);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
     free(signs);
     return finalRes;
 }
@@ -254,7 +237,9 @@ long long int simAnn(int size)
     signs = getrandSigns(signs, size);
     
     int* signsPP = malloc(sizeof(int) * size); // S''
-    signsPP = signs;
+    for(int i = 0; i < size; i++){
+        signsPP[i] = signs[i];
+    }
     
     for(int k = 0; k < MAX_ITER; k++)
     {
@@ -264,35 +249,24 @@ long long int simAnn(int size)
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) || (rand() / RAND_MAX) <
            exp(-1*(seqResidue(nums, signs, size) - seqResidue(nums, signsP, size))/coolSched(k)))
         {
-<<<<<<< HEAD
-            //free(signs);
-=======
             free(signs);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
         {
-<<<<<<< HEAD
-            //free(signsP);
-=======
             free(signsP);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
         }
         // Check if new or old S is better than S''
         if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
         {
-            signsPP = signs;
+            for(int i = 0; i < size; i++){
+                signsPP[i] = signs[i];
+            }
         }
     }
     long long int finalRes = seqResidue(nums, signsPP, size);
-<<<<<<< HEAD
-    //free(signs);
-    //free(signsPP);
-=======
     free(signs);
     free(signsPP);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
     return finalRes;
 }
 
@@ -303,7 +277,7 @@ int main()
     
     int seed = time(NULL);
     srand(seed);
-
+    
     
     // Pdf example
     long long int array[] = {10,8,7,6,5};
@@ -313,13 +287,14 @@ int main()
     printf("Residue is: %lld \n", kk(arr,n));
     
     long long int rep = repRand(100);
+    
+    
     long long int hill = hillClimb(100);
     long long int sim = simAnn(100);
     
+    
     printf("Repeated Random Residue is: %lld \n", rep);
-    
     printf("Hill Climbing Residue is: %lld \n", hill);
-    
     printf("Simulated Annealing Residue is: %lld \n", sim);
     
     
