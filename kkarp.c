@@ -125,7 +125,7 @@ long long int seqResidue(long long int* nums, int* s, int size)
     {
         cum += nums[i] * s[i];
     }
-    return cum;
+    return llabs(cum);
 }
 
 
@@ -138,89 +138,184 @@ long long int repRand(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-    int* signsP = malloc(sizeof(int) * size);
-    
     
     for(int j = 0; j < MAX_ITER; j++)
     {
         // Declare and assign random values to S'
+        int* signsP = malloc(sizeof(int) * size);
         signsP = getrandSigns(signsP, size);
         
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
+            free(signs);
+            signs = malloc(sizeof(int) * size);
             signs = signsP;
+        }
+        else
+        {
+            free(signsP);
         }
     }
     long long int finalRes = seqResidue(nums, signs, size);
-    free(signsP);
+    free(signs);
     return finalRes;
+}
+
+// Function that generates a random neighbor
+int* getNeighbor(int* signs, int size)
+{
+    int* signsP = malloc(sizeof(int) * size); // S'
+    // Declare and assign original values to S'
+    signsP = signs;
+    // Select random indeces
+    int i = rand() % size;
+    int j = rand() % size;
+    while(i == j) // i =/= j
+    {
+        j = rand() % size;
+    }
+    
+    // Change S' to be a neighbor of S
+    signsP[i] *= -1;
+    if(rand()/RAND_MAX < .5)
+    {
+        signsP[j] *= -1;
+    }
+    
+    return signsP;
 }
 
 
 // Function that implements Hill Climbing
 long long int hillClimb(int size)
 {
-    // Declare and assign random values to S
+    // Declare and assign random values to S and A
     long long int* nums = malloc(sizeof(long long int) * size);
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-    long long int i,j;
-    int* signsP = malloc(sizeof(int) * size);
     
     for(int k = 0; k < MAX_ITER; k++)
     {
-        // Declare and assign original values to S'
-        signsP = signs;
-        
-        // Select random indeces
-        i = getrand() % (size+1);
-        j = getrand() % (size+1);
-        while(i == j) // i =/= j
-        {
-            j = getrand() % (size+1);
-        }
-        
-        // Change S' to be a neighbor of S
-        signsP[i] = -1 * signsP[i];
-        if(getrand() % 2 == 0)
-        {
-            signsP[j] = -1 * signsP[j];
-        }
+        int* signsP = getNeighbor(signs, size);
         // Check if neighbor is better
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
+            //free(signs);
+            //signs = realloc(signs, sizeof(long long int) * size);
             signs = signsP;
+        }
+        else
+        {
+            //free(signsP);
         }
     }
     long long int finalRes = seqResidue(nums, signs, size);
-    free(signsP);
+    printf("final res is %lld\n",finalRes);
+    free(signs);
     return finalRes;
 }
 
 
+// Function that implements cooling schedule for simulated annealing
+double coolSched(int iter)
+{
+    // T(iter) = 10^10 * (0.8)^(⌊iter/300⌋)
+    return pow(10, 10) * pow(0.8, iter/300);
+}
 
 
-
-
-
+// Function that implements simulated annealing
+long long int simAnn(int size)
+{
+    // Declare and assign random values to S and A
+    long long int* nums = malloc(sizeof(long long int) * size);
+    nums = getrandNums(nums, size);
+    int* signs = malloc(sizeof(int) * size);
+    signs = getrandSigns(signs, size);
+    
+    int* signsPP = malloc(sizeof(int) * size); // S''
+    signsPP = signs;
+    
+    for(int k = 0; k < MAX_ITER; k++)
+    {
+        int* signsP = getNeighbor(signs, size);
+        
+        // Check if S' is better or if cooling schedule allows for switch regardless
+        if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) || (rand() / RAND_MAX) <
+           exp(-1*(seqResidue(nums, signs, size) - seqResidue(nums, signsP, size))/coolSched(k)))
+        {
+            //free(signs);
+            signs = signsP;
+        }
+        else
+        {
+            //free(signsP);
+        }
+        // Check if new or old S is better than S''
+        if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
+        {
+            signsPP = signs;
+        }
+    }
+    long long int finalRes = seqResidue(nums, signsPP, size);
+    //free(signs);
+    //free(signsPP);
+    return finalRes;
+}
 
 
 // MAIN FOR TESTING
 int main()
 {
+    
     int seed = time(NULL);
     srand(seed);
 
+    
     // Pdf example
     long long int array[] = {10,8,7,6,5};
     long long int* arr = array;
     int n = 5;
+    
     printf("Residue is: %lld \n", kk(arr,n));
     
-    printf("Repeated Random Residue is: %lld \n", repRand(100));
+    long long int rep = repRand(100);
+    long long int hill = hillClimb(100);
+    long long int sim = simAnn(100);
     
-    printf("Hill Climbing Residue is: %lld \n", hillClimb(100));
+    printf("Repeated Random Residue is: %lld \n", rep);
+    
+    printf("Hill Climbing Residue is: %lld \n", hill);
+    
+    printf("Simulated Annealing Residue is: %lld \n", sim);
+    
+    
+    long long int bestRes;
+    char* bestSol;
+    
+    if(rep < hill)
+    {
+        bestRes = rep;
+        bestSol = "Repeated Rand";
+    }
+    else
+    {
+        bestRes = hill;
+        bestSol = "Hill Climbing";
+    }
+    
+    if(sim < bestRes)
+    {
+        bestRes = sim;
+        bestSol = "Simulated Annealing";
+    }
+    
+    printf("Best solution is %s with %lld residue \n", bestSol, bestRes);
+    
+    long long int* a = malloc(sizeof(long long int) * 100);
+    a = getrandNums(a,100);
+    printf("KK on rand is %lld \n", kk(a,100));
     
     return 0;
 }
