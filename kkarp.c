@@ -138,25 +138,18 @@ long long int repRand(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-<<<<<<< HEAD
-=======
-    
-    
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
-    
+
+
+
     for(int j = 0; j < MAX_ITER; j++)
     {
         // Declare and assign random values to S'
         int* signsP = malloc(sizeof(int) * size);
         signsP = getrandSigns(signsP, size);
-        
+
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
             free(signs);
-<<<<<<< HEAD
-            signs = malloc(sizeof(int) * size);
-=======
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
@@ -185,14 +178,14 @@ int* getNeighbor(int* signs, int size)
     {
         j = rand() % size;
     }
-    
+
     // Change S' to be a neighbor of S
     signsP[i] *= -1;
     if(rand()/RAND_MAX < .5)
     {
         signsP[j] *= -1;
     }
-    
+
     return signsP;
 }
 
@@ -212,28 +205,15 @@ long long int hillClimb(int size)
         // Check if neighbor is better
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
-<<<<<<< HEAD
-            //free(signs);
-            //signs = realloc(signs, sizeof(long long int) * size);
-=======
             free(signs);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
         {
-<<<<<<< HEAD
-            //free(signsP);
-        }
-    }
-    long long int finalRes = seqResidue(nums, signs, size);
-    printf("final res is %lld\n",finalRes);
-=======
             free(signsP);
         }
     }
     long long int finalRes = seqResidue(nums, signs, size);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
     free(signs);
     return finalRes;
 }
@@ -255,34 +235,26 @@ long long int simAnn(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-    
+
     int* signsPP = malloc(sizeof(int) * size); // S''
     for(int i = 0; i < size; i++){
         signsPP[i] = signs[i];
     }
-    
+
     for(int k = 0; k < MAX_ITER; k++)
     {
         int* signsP = getNeighbor(signs, size);
-        
+
         // Check if S' is better or if cooling schedule allows for switch regardless
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) || (rand() / RAND_MAX) <
            exp(-1*(seqResidue(nums, signs, size) - seqResidue(nums, signsP, size))/coolSched(k)))
         {
-<<<<<<< HEAD
-            //free(signs);
-=======
             free(signs);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
             signs = signsP;
         }
         else
         {
-<<<<<<< HEAD
-            //free(signsP);
-=======
             free(signsP);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
         }
         // Check if new or old S is better than S''
         if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
@@ -293,13 +265,8 @@ long long int simAnn(int size)
         }
     }
     long long int finalRes = seqResidue(nums, signsPP, size);
-<<<<<<< HEAD
-    //free(signs);
-    //free(signsPP);
-=======
     free(signs);
     free(signsPP);
->>>>>>> ab54e31a086f250826afe5766455e9af792bb5e3
     return finalRes;
 }
 
