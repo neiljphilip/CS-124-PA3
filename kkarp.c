@@ -167,8 +167,11 @@ int* getNeighbor(int* signs, int size)
 {
     int* signsP = malloc(sizeof(int) * size); // S'
     // Declare and assign original values to S'
-    signsP = signs;
-    // Select random indeces
+    //signsP = signs;
+    for(int i = 0; i < size; i++){
+        signsP[i] = signs[i];
+    }
+    // Select random indices
     int i = rand() % size;
     int j = rand() % size;
     while(i == j) // i =/= j
@@ -195,7 +198,7 @@ long long int hillClimb(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-    
+
     for(int k = 0; k < MAX_ITER; k++)
     {
         int* signsP = getNeighbor(signs, size);
@@ -234,7 +237,9 @@ long long int simAnn(int size)
     signs = getrandSigns(signs, size);
     
     int* signsPP = malloc(sizeof(int) * size); // S''
-    signsPP = signs;
+    for(int i = 0; i < size; i++){
+        signsPP[i] = signs[i];
+    }
     
     for(int k = 0; k < MAX_ITER; k++)
     {
@@ -254,7 +259,9 @@ long long int simAnn(int size)
         // Check if new or old S is better than S''
         if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
         {
-            signsPP = signs;
+            for(int i = 0; i < size; i++){
+                signsPP[i] = signs[i];
+            }
         }
     }
     long long int finalRes = seqResidue(nums, signsPP, size);
@@ -280,13 +287,14 @@ int main()
     printf("Residue is: %lld \n", kk(arr,n));
     
     long long int rep = repRand(100);
+
+
     long long int hill = hillClimb(100);
     long long int sim = simAnn(100);
-    
+
+
     printf("Repeated Random Residue is: %lld \n", rep);
-    
     printf("Hill Climbing Residue is: %lld \n", hill);
-    
     printf("Simulated Annealing Residue is: %lld \n", sim);
     
     
@@ -304,7 +312,7 @@ int main()
         bestSol = "Hill Climbing";
     }
     
-    if(sim < bestRes)
+   if(sim < bestRes)
     {
         bestRes = sim;
         bestSol = "Simulated Annealing";
