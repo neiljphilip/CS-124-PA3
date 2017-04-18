@@ -162,6 +162,30 @@ long long int repRand(int size)
     return finalRes;
 }
 
+// Function that generates a random neighbor
+int* getNeighbor(int* signs, int size)
+{
+    int* signsP = malloc(sizeof(int) * size); // S'
+    // Declare and assign original values to S'
+    signsP = signs;
+    // Select random indeces
+    int i = rand() % size;
+    int j = rand() % size;
+    while(i == j) // i =/= j
+    {
+        j = rand() % size;
+    }
+    
+    // Change S' to be a neighbor of S
+    signsP[i] *= -1;
+    if(rand()/RAND_MAX < .5)
+    {
+        signsP[j] *= -1;
+    }
+    
+    return signsP;
+}
+
 
 // Function that implements Hill Climbing
 long long int hillClimb(int size)
@@ -171,33 +195,19 @@ long long int hillClimb(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-    long long int i,j;
-    int* signsP = malloc(sizeof(int) * size); // S'
     
     for(int k = 0; k < MAX_ITER; k++)
     {
-        // Declare and assign original values to S'
-        signsP = signs;
-        
-        // Select random indeces
-        i = getrand() % (size+1);
-        j = getrand() % (size+1);
-        while(i == j) // i =/= j
-        {
-            j = getrand() % (size+1);
-        }
-        
-        // Change S' to be a neighbor of S
-        signsP[i] = -1 * signsP[i];
-        if(getrand() % 2 == 0)
-        {
-            signsP[j] = -1 * signsP[j];
-        }
-        
+        int* signsP = getNeighbor(signs, size);
         // Check if neighbor is better
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
+            free(signs);
             signs = signsP;
+        }
+        else
+        {
+            free(signsP);
         }
     }
     long long int finalRes = seqResidue(nums, signs, size);
@@ -223,36 +233,23 @@ long long int simAnn(int size)
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
     
-    long long int i,j;
-    int* signsP = malloc(sizeof(int) * size); // S'
     int* signsPP = malloc(sizeof(int) * size); // S''
     signsPP = signs;
     
     for(int k = 0; k < MAX_ITER; k++)
     {
-        // Declare and assign original values to S'
-        signsP = signs;
-        
-        // Select random indeces
-        i = getrand() % (size+1);
-        j = getrand() % (size+1);
-        while(i == j) // i =/= j
-        {
-            j = getrand() % (size+1);
-        }
-        
-        // Change S' to be a neighbor of S
-        signsP[i] = -1 * signsP[i];
-        if(getrand() % 2 == 0)
-        {
-            signsP[j] = -1 * signsP[j];
-        }
+        int* signsP = getNeighbor(signs, size);
         
         // Check if S' is better or if cooling schedule allows for switch regardless
-        if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) ||(rand() / RAND_MAX) <
+        if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) || (rand() / RAND_MAX) <
            exp(-1*(seqResidue(nums, signs, size) - seqResidue(nums, signsP, size))/coolSched(k)))
         {
+            free(signs);
             signs = signsP;
+        }
+        else
+        {
+            free(signsP);
         }
         // Check if new or old S is better than S''
         if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
@@ -261,6 +258,7 @@ long long int simAnn(int size)
         }
     }
     long long int finalRes = seqResidue(nums, signsPP, size);
+    free(signs);
     free(signsPP);
     return finalRes;
 }
@@ -269,9 +267,11 @@ long long int simAnn(int size)
 // MAIN FOR TESTING
 int main()
 {
+    
     int seed = time(NULL);
     srand(seed);
 
+    
     // Pdf example
     long long int array[] = {10,8,7,6,5};
     long long int* arr = array;
