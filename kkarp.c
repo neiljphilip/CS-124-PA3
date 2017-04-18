@@ -138,30 +138,22 @@ long long int repRand(int size)
     nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
+    int* signsP = malloc(sizeof(int) * size);
     
     
     for(int j = 0; j < MAX_ITER; j++)
     {
         // Declare and assign random values to S'
-        long long int* numsP = malloc(sizeof(long long int) * size);
-        int* signsP = malloc(sizeof(int) * size);
-        numsP = getrandNums(numsP, size);
         signsP = getrandSigns(signsP, size);
         
-        if(seqResidue(numsP, signsP, size) < seqResidue(nums, signs, size))
+        if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
-            nums = numsP;
             signs = signsP;
-            free(numsP);
-            free(signsP);
-        }
-        else
-        {
-            free(numsP);
-            free(signsP);
         }
     }
-    return seqResidue(nums, signs, size);
+    long long int finalRes = seqResidue(nums, signs, size);
+    free(signsP);
+    return finalRes;
 }
 
 
@@ -174,13 +166,11 @@ long long int hillClimb(int size)
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
     long long int i,j;
+    int* signsP = malloc(sizeof(int) * size);
     
-    for(int j = 0; j < MAX_ITER; j++)
+    for(int k = 0; k < MAX_ITER; k++)
     {
         // Declare and assign original values to S'
-        long long int* numsP = malloc(sizeof(long long int) * size);
-        int* signsP = malloc(sizeof(int) * size);
-        numsP = nums;
         signsP = signs;
         
         // Select random indeces
@@ -197,22 +187,21 @@ long long int hillClimb(int size)
         {
             signsP[j] = -1 * signsP[j];
         }
-        
-        if(seqResidue(numsP, signsP, size) < seqResidue(nums, signs, size))
+        // Check if neighbor is better
+        if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
-            nums = numsP;
             signs = signsP;
-            free(numsP);
-            free(signsP);
-        }
-        else
-        {
-            free(numsP);
-            free(signsP);
         }
     }
-    return seqResidue(nums, signs, size);
+    long long int finalRes = seqResidue(nums, signs, size);
+    free(signsP);
+    return finalRes;
 }
+
+
+
+
+
 
 
 
@@ -229,10 +218,9 @@ int main()
     int n = 5;
     printf("Residue is: %lld \n", kk(arr,n));
     
-    printf("Repeated Random Residue is: %lld \n", repRand(1000));
+    printf("Repeated Random Residue is: %lld \n", repRand(100));
     
-    printf("Hill Climbing Residue is: %lld \n", hillClimb(1000));
+    printf("Hill Climbing Residue is: %lld \n", hillClimb(100));
     
     return 0;
 }
-
