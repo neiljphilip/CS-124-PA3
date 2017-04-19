@@ -17,7 +17,7 @@
 
 
 /* Function that runs KK algorithm on an an array of numbers
-    Returns the residue of the partition
+ Returns the residue of the partition
  */
 long long int kk(long long int* nums, int size)
 {
@@ -59,7 +59,7 @@ long long int kk(long long int* nums, int size)
         // Replace second greatest with 0 and the greatest with the difference
         nums[secgreatestIndex] = 0;
         nums[greatestIndex] = magn;
-    
+        
         // Reset for next iteration
         greatestIndex = 0;
         greatest = 0;
@@ -129,24 +129,42 @@ long long int seqResidue(long long int* nums, int* s, int size)
 }
 
 
+// Calculates residue for pre-partition representation
+long long int preResidue(long long int* nums, int* s, int size)
+{
+    long long int* numsP = malloc(sizeof(long long int) * size);
+    for(int i = 0; i < size; i++)
+    {
+        // Iterate through all ps
+        for(int j = 0; j < size; j++)
+        {
+            if(s[j] == i)
+            {
+                // a′pj =a′pj +aj
+                numsP[j] = numsP[j] + nums[i];
+            }
+        }
+    }
+    // Run kk on A'
+    long long int res = kk(numsP, size);
+    free(numsP);
+    return res;
+}
 
-// Function that implements Repeated Random
-long long int repRand(int size)
+
+// Function that implements Repeated Random for sequence representation
+long long int repRand(long long int* nums, int size)
 {
     // Declare and assign random values to S
-    long long int* nums = malloc(sizeof(long long int) * size);
-    nums = getrandNums(nums, size);
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-
-
-
+    
     for(int j = 0; j < MAX_ITER; j++)
     {
         // Declare and assign random values to S'
         int* signsP = malloc(sizeof(int) * size);
         signsP = getrandSigns(signsP, size);
-
+        
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
             free(signs);
@@ -162,13 +180,55 @@ long long int repRand(int size)
     return finalRes;
 }
 
-// Function that generates a random neighbor
-int* getNeighbor(int* signs, int size)
+
+// Function that generates random solution P in pre-partition representation
+int* getrandP(int* outP, int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        // Generate random number [0,n-1]
+        outP[i] = rand() % size;
+    }
+    return outP;
+}
+
+
+// Function that implements Repeated Random for pre-partition representation
+long long int prerepRand(long long int* nums, int size)
+{
+    // Declare and assign values to S
+    int* p = malloc(sizeof(int) * size);
+    p = getrandP(p, size);
+
+    for(int i = 0; i < MAX_ITER; i++)
+    {
+        // Declare and assign random values to P'
+        int* pP = malloc(sizeof(int) * size);
+        pP = getrandP(pP, size);
+        
+        if(preResidue(nums, pP, size) < preResidue(nums, p, size))
+        {
+            free(p);
+            p = pP;
+        }
+        else
+        {
+            free(pP);
+        }
+    }
+    long long int finalRes = preResidue(nums, p, size);
+    free(p);
+    return finalRes;
+}
+
+
+// Function that generates a random neighbor in sequence representation
+int* seqNeighbor(int* signs, int size)
 {
     int* signsP = malloc(sizeof(int) * size); // S'
     // Declare and assign original values to S'
-    //signsP = signs;
-    for(int i = 0; i < size; i++){
+    for(int i = 0; i < size; i++)
+    {
         signsP[i] = signs[i];
     }
     // Select random indices
@@ -178,30 +238,50 @@ int* getNeighbor(int* signs, int size)
     {
         j = rand() % size;
     }
-
+    
     // Change S' to be a neighbor of S
     signsP[i] *= -1;
     if(rand()/RAND_MAX < .5)
     {
         signsP[j] *= -1;
     }
-
+    
     return signsP;
 }
 
 
-// Function that implements Hill Climbing
-long long int hillClimb(int size)
+// Function that generates a random neighbor in pre-partition representation
+int* preNeighbor(int* p, int size)
 {
-    // Declare and assign random values to S and A
-    long long int* nums = malloc(sizeof(long long int) * size);
-    nums = getrandNums(nums, size);
+    int* pP = malloc(sizeof(int) * size); // P'
+    for(int i = 0; i < size; i++)
+    {
+        pP[i] = p[i];
+    }
+    // Select random indices
+    int i = rand() % size;
+    int j = rand() % size;
+    while(p[i] == j) // p_i =/= j
+    {
+        j = rand() % size;
+    }
+    // Change P' to be a neighbor of P
+    pP[i] = j;
+    
+    return pP;
+}
+
+
+// Function that implements Hill Climbing in sequence representation
+long long int hillClimb(long long int* nums, int size)
+{
+    // Declare and assign random values to S
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-
+    
     for(int k = 0; k < MAX_ITER; k++)
     {
-        int* signsP = getNeighbor(signs, size);
+        int* signsP = seqNeighbor(signs, size);
         // Check if neighbor is better
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size))
         {
@@ -219,6 +299,34 @@ long long int hillClimb(int size)
 }
 
 
+// Function that implements Hill Climbing in pre-partition representation
+long long int prehillClimb(long long int* nums, int size)
+{
+    // Declare and assign random values to P
+    int* p = malloc(sizeof(int) * size);
+    p = getrandP(p, size);
+    
+    for(int i = 0; i < MAX_ITER; i++)
+    {
+        int* pP = preNeighbor(p, size);
+        // Check if neighbor is better
+        if(preResidue(nums, pP, size) < preResidue(nums, p, size))
+        {
+            free(p);
+            p = pP;
+        }
+        else
+        {
+            free(pP);
+        }
+    }
+    long long int finalRes = preResidue(nums, p, size);
+    free(p);
+    return finalRes;
+}
+
+
+
 // Function that implements cooling schedule for simulated annealing
 double coolSched(int iter)
 {
@@ -227,24 +335,23 @@ double coolSched(int iter)
 }
 
 
-// Function that implements simulated annealing
-long long int simAnn(int size)
+// Function that implements simulated annealing in sequence representation
+long long int simAnn(long long int* nums, int size)
 {
-    // Declare and assign random values to S and A
-    long long int* nums = malloc(sizeof(long long int) * size);
-    nums = getrandNums(nums, size);
+    // Declare and assign random values to S
     int* signs = malloc(sizeof(int) * size);
     signs = getrandSigns(signs, size);
-
+    
     int* signsPP = malloc(sizeof(int) * size); // S''
-    for(int i = 0; i < size; i++){
-        signsPP[i] = signs[i];
+    for(int j = 0; j < size; j++)
+    {
+        signsPP[j] = signs[j];
     }
-
+    int i = 0;
     for(int k = 0; k < MAX_ITER; k++)
     {
-        int* signsP = getNeighbor(signs, size);
-
+        int* signsP = seqNeighbor(signs, size);
+        
         // Check if S' is better or if cooling schedule allows for switch regardless
         if(seqResidue(nums, signsP, size) < seqResidue(nums, signs, size) || (rand() / RAND_MAX) <
            exp(-1*(seqResidue(nums, signs, size) - seqResidue(nums, signsP, size))/coolSched(k)))
@@ -259,7 +366,8 @@ long long int simAnn(int size)
         // Check if new or old S is better than S''
         if(seqResidue(nums, signs, size) < seqResidue(nums, signsPP, size))
         {
-            for(int i = 0; i < size; i++){
+            for(i = 0; i < size; i++)
+            {
                 signsPP[i] = signs[i];
             }
         }
@@ -271,13 +379,60 @@ long long int simAnn(int size)
 }
 
 
+// Function that implements simulated annealing in pre-partitioning representation
+long long int presimAnn(long long int* nums, int size)
+{
+    // Declare and assign random values to P
+    int* p = malloc(sizeof(int) * size);
+    p = getrandP(p, size);
+    
+    int* pPP = malloc(sizeof(int) * size); // P''
+    for(int i = 0; i < size; i++)
+    {
+        pPP[i] = p[i];
+    }
+    
+    int i = 0;
+    for(int k = 0; k < MAX_ITER; k++)
+    {
+        int* pP = preNeighbor(p, size);
+        
+        // Check if P' is better or if cooling schedule allows for switch regardless
+        if(preResidue(nums, pP, size) < preResidue(nums, p, size) || (rand() / RAND_MAX) <
+           exp(-1*(preResidue(nums, p, size) - preResidue(nums, pP, size))/coolSched(k)))
+        {
+            free(p);
+            p = pP;
+        }
+        else
+        {
+            free(pP);
+        }
+        // Check if new or old S is better than S''
+        if(preResidue(nums, p, size) < preResidue(nums, pPP, size))
+        {
+            for(i = 0; i < size; i++)
+            {
+                pPP[i] = p[i];
+            }
+        }
+    }
+    long long int finalRes = preResidue(nums, pPP, size);
+    free(p);
+    free(pPP);
+    return finalRes;
+}
+
+
+
+
 // MAIN FOR TESTING
 int main()
 {
     
     int seed = time(NULL);
     srand(seed);
-
+    
     
     // Pdf example
     long long int array[] = {10,8,7,6,5};
@@ -285,14 +440,17 @@ int main()
     int n = 5;
     
     printf("Residue is: %lld \n", kk(arr,n));
+    int size = 100;
     
-    long long int rep = repRand(100);
-
-
-    long long int hill = hillClimb(100);
-    long long int sim = simAnn(100);
-
-
+    // Declare and assign random values to S and A
+    long long int* nums = malloc(sizeof(long long int) * size);
+    nums = getrandNums(nums, size);
+    
+    long long int rep = repRand(nums, size);
+    long long int hill = hillClimb(nums, size);
+    long long int sim = simAnn(nums, size);
+    
+    
     printf("Repeated Random Residue is: %lld \n", rep);
     printf("Hill Climbing Residue is: %lld \n", hill);
     printf("Simulated Annealing Residue is: %lld \n", sim);
@@ -312,7 +470,7 @@ int main()
         bestSol = "Hill Climbing";
     }
     
-   if(sim < bestRes)
+    if(sim < bestRes)
     {
         bestRes = sim;
         bestSol = "Simulated Annealing";
@@ -320,9 +478,20 @@ int main()
     
     printf("Best solution is %s with %lld residue \n", bestSol, bestRes);
     
-    long long int* a = malloc(sizeof(long long int) * 100);
-    a = getrandNums(a,100);
-    printf("KK on rand is %lld \n", kk(a,100));
+    /***************/
+    
+    long long int prep = prerepRand(nums, size);
+    long long int phill = prehillClimb(nums, size);
+    long long int psim = presimAnn(nums, size);
+    
+    
+    printf("Pre-Partition Repeated Random Residue is: %lld \n", prep);
+    printf("Pre-Partition Hill Climbing Residue is: %lld \n", phill);
+    printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);
+    
+    
+    free(nums);
+    
     
     return 0;
 }
