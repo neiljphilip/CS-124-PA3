@@ -16,6 +16,7 @@
 #define MAX_ITER 25000
 
 
+
 /* Function that runs KK algorithm on an an array of numbers
  Returns the residue of the partition
  */
@@ -423,6 +424,33 @@ long long int presimAnn(long long int* nums, int size)
     return finalRes;
 }
 
+char* threeMin(int a, int b, int c)
+{
+    int best;
+    if(a < b)
+    {
+        best = "Rand";
+    }
+    else
+    {
+        best = "Hill";
+    }
+
+    if(c < best)
+    {
+        best = "Ann";
+    }
+
+    return best;
+}
+
+void printArray_(int *a, int len) {
+    for (int i = 0; i < len; i++) printf("%d ", a[i]);
+    printf("\n");
+}
+#define printArray(arr) printArray_((arr), sizeof(arr)/sizeof(arr[0]))
+
+
 
 
 
@@ -433,7 +461,7 @@ int main()
     int seed = time(NULL);
     srand(seed);
     
-    
+    /*
     // Pdf example
     long long int array[] = {10,8,7,6,5};
     long long int* arr = array;
@@ -483,17 +511,53 @@ int main()
 
 
 
+    int n = 100;
+    long long int* nums = malloc(sizeof(long long int) * n);
+    int kkarp[100];
+    int rand[100];
+    int hill[100];
+    int ann[100];
+    int randP[100];
+    int hillP[100];
+    int annP[100];
+    char* best[100];
+    char* bestP[100];
+
+    for(int i = 0; i < 100; i++)
+    {
+        nums = getrandNums(nums, n);
+        kkarp[i] = kk(nums, n);
+        rand[i] = repRand(nums, n);
+        hill[i] = hillClimb(nums, n);
+        ann[i] = simAnn(nums, n);
+        randP[i] = prerepRand(nums, n);
+        hillP[i] = prehillClimb(nums, n);
+        annP[i] = simAnn(nums, n);
+        best[i] = threeMin(rand[i], hill[i], ann[i]);
+        bestP[i] = threeMin(randP[i], hillP[i], annP[i]);
+
+    }
+
+    printArray(kkarp);
+    printArray(rand);
+    printArray( hill);
+    printArray(ann);
+    printArray(randP);
+    printArray(hillP);
+    printArray(annP);
+    printArray(best);
+    printArray(bestP);
 
 
 
-    long long int prep = prerepRand(nums, size);
+   /*long long int prep = prerepRand(nums, size);
     long long int phill = prehillClimb(nums, size);
     long long int psim = presimAnn(nums, size);
 
 
     printf("Pre-Partition Repeated Random Residue is: %lld \n", prep);
     printf("Pre-Partition Hill Climbing Residue is: %lld \n", phill);
-    printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);
+    printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);*/
 
     
 
