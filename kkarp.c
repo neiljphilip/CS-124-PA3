@@ -132,7 +132,7 @@ long long int seqResidue(long long int* nums, int* s, int size)
 // Calculates residue for pre-partition representation
 long long int preResidue(long long int* nums, int* s, int size)
 {
-    long long int* numsP = malloc(sizeof(long long int) * size);
+    long long int* numsP = calloc(size, sizeof(long long int));
     for(int i = 0; i < size; i++)
     {
         // Iterate through all ps
@@ -445,7 +445,7 @@ int main()
     // Declare and assign random values to S and A
     long long int* nums = malloc(sizeof(long long int) * size);
     nums = getrandNums(nums, size);
-    
+
     long long int rep = repRand(nums, size);
     long long int hill = hillClimb(nums, size);
     long long int sim = simAnn(nums, size);
@@ -477,19 +477,26 @@ int main()
     }
     
     printf("Best solution is %s with %lld residue \n", bestSol, bestRes);
-    
+
     /***************/
-    
+
+
+
+
+
+
+
     long long int prep = prerepRand(nums, size);
     long long int phill = prehillClimb(nums, size);
     long long int psim = presimAnn(nums, size);
-    
-    
+
+
     printf("Pre-Partition Repeated Random Residue is: %lld \n", prep);
     printf("Pre-Partition Hill Climbing Residue is: %lld \n", phill);
     printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);
+
     
-    
+
     free(nums);
     
     
