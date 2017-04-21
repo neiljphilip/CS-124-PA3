@@ -465,6 +465,7 @@ int main(int argc, char* argv[])
     printf("%lld \n", kkarp);
     fclose(file);
     
+    /*
     // PART 2 ---------------------
     long long int prep;
     long long int phill;
@@ -498,7 +499,7 @@ int main(int argc, char* argv[])
         printf("%lld\n", phill); // Hill Climbing pre-partition
         printf("%lld\n", psim); // Simulated Annealing pre-partition
         free(nums);
-    }
+    }*/
     return 0;
 }
 
