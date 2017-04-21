@@ -4,6 +4,7 @@
 //
 // Created by 90982966 and 90977369
 //
+// usage: ./kk inputfile
 //
 
 #include <stdio.h>
@@ -200,7 +201,7 @@ long long int prerepRand(long long int* nums, int size)
     // Declare and assign values to S
     int* p = malloc(sizeof(int) * size);
     p = getrandP(p, size);
-
+    
     for(int i = 0; i < MAX_ITER; i++)
     {
         // Declare and assign random values to P'
@@ -424,145 +425,312 @@ long long int presimAnn(long long int* nums, int size)
     return finalRes;
 }
 
-char* threeMin(int a, int b, int c)
+
+// Function that prints array of size size
+void printArray(long long int* arr, int size)
 {
-    int best;
-    if(a < b)
+    for (int i = 0; i < size; i++)
     {
-        best = "Rand";
+        printf("%lld \n", arr[i]);
     }
-    else
-    {
-        best = "Hill";
-    }
-
-    if(c < best)
-    {
-        best = "Ann";
-    }
-
-    return best;
 }
 
-void printArray_(int *a, int len) {
-    for (int i = 0; i < len; i++) printf("%d ", a[i]);
-    printf("\n");
+
+
+/*
+ Real main that reads in file and then does 100 trials with 
+ 25000 iterations on each heuristic using both representations
+ 
+ usage: ./kk inputfile
+ */
+int main(int argc, char* argv[])
+{
+    int size = 100;
+    
+    // PART 1 ---------------------
+    // Read in text file
+    char const* const filename = argv[1];
+    FILE* file = fopen(filename, "r");
+    char curr_line[64];
+    long long int* inputNums = malloc(sizeof(long long int) * size);
+    
+    // Fill array with input
+    for(int h = 0; h < size; h++)
+    {
+        fgets(curr_line, sizeof curr_line, file);
+        inputNums[h] = atoi(&(curr_line[0]));
+    }
+    
+    long long int kkarp = kk(inputNums, size);
+    printf("%lld \n", kkarp);
+    fclose(file);
+    
+    // PART 2 ---------------------
+    long long int prep;
+    long long int phill;
+    long long int psim;
+    long long int rep;
+    long long int hill;
+    long long int sim;
+    long long int kkres;
+    
+    // Generate 100 instances of random sequences/prepartitions and run all 7s algorithms
+    for(int j = 0; j < size; j++)
+    {
+        long long int* nums = malloc(sizeof(long long int) * size);
+        nums = getrandNums(nums, size);
+        
+        // Run algorithms
+        rep = repRand(nums, size);
+        hill = hillClimb(nums, size);
+        sim = simAnn(nums, size);
+        prep = prerepRand(nums, size);
+        phill = prehillClimb(nums, size);
+        psim = presimAnn(nums, size);
+        kkres = kk(nums, size);
+        
+        // Print algorithms
+        printf("%lld\n", kkres); // kk
+        printf("%lld\n", rep); // Repeated Random sequence
+        printf("%lld\n", hill); // Hill Climbing sequence
+        printf("%lld\n", sim); // Simulated Annealing sequence
+        printf("%lld\n", prep); // Repeated Random pre-partition
+        printf("%lld\n", phill); // Hill Climbing pre-partition
+        printf("%lld\n", psim); // Simulated Annealing pre-partition
+        free(nums);
+    }
+    return 0;
 }
-#define printArray(arr) printArray_((arr), sizeof(arr)/sizeof(arr[0]))
 
 
-
-
-
+/*
 // MAIN FOR TESTING
 int main()
 {
     
+    int size = 100;
     int seed = time(NULL);
     srand(seed);
+    */
+    /*
+     // Pdf example
+     long long int array[] = {10,8,7,6,5};
+     long long int* arr = array;
+     int n = 5;
+     
+     printf("Residue is: %lld \n", kk(arr,n));*/
+    
     
     /*
-    // Pdf example
-    long long int array[] = {10,8,7,6,5};
-    long long int* arr = array;
+     // Declare and assign random values to S and A
+     long long int* nums = malloc(sizeof(long long int) * size);
+     nums = getrandNums(nums, size);
+     long long int rep = repRand(nums, size);
+     long long int hill = hillClimb(nums, size);
+     long long int sim = simAnn(nums, size);
+     
+     
+     printf("Repeated Random Residue is: %lld \n", rep);
+     printf("Hill Climbing Residue is: %lld \n", hill);
+     printf("Simulated Annealing Residue is: %lld \n", sim);
+     
+     
+     long long int bestRes;
+     char* bestSol;
+     
+     if(rep < hill)
+     {
+     bestRes = rep;
+     bestSol = "Repeated Rand";
+     }
+     else
+     {
+     bestRes = hill;
+     bestSol = "Hill Climbing";
+     }
+     
+     if(sim < bestRes)
+     {
+     bestRes = sim;
+     bestSol = "Simulated Annealing";
+     }
+     
+     printf("Best solution is %s with %lld residue \n", bestSol, bestRes);
+*/
+    
+   /*
     int n = 5;
+    long long int* nums = malloc(sizeof(long long int) * n);
+    long long int kkarp;
+    long long int rand;
+    long long int hill;
+    long long int ann;
+    long long int randP;
+    long long int hillP;
+    long long int annP;
     
-    printf("Residue is: %lld \n", kk(arr,n));
-    int size = 100;
+    // Iterate and get results, storing them by index
+    for(int i = 0; i < n; i++)
+    {
+        // Re-assign random numbers
+        nums = getrandNums(nums, n);
+        
+        // Print
+        printf("%lld \n", kk(nums, n));
+        printf("%lld \n", repRand(nums, n));
+        printf("%lld \n", hillClimb(nums, n));
+        printf("%lld \n", simAnn(nums, n));
+        printf("%lld \n", prerepRand(nums, n));
+        printf("%lld \n", prehillClimb(nums, n));
+        printf("%lld \n", presimAnn(nums, n));
+    }
+    */
     
-    // Declare and assign random values to S and A
+    /*
     long long int* nums = malloc(sizeof(long long int) * size);
     nums = getrandNums(nums, size);
-
+    long long int prep = prerepRand(nums, size);
+    long long int phill = prehillClimb(nums, size);
+    long long int psim = presimAnn(nums, size);
     long long int rep = repRand(nums, size);
     long long int hill = hillClimb(nums, size);
     long long int sim = simAnn(nums, size);
-    
-    
     printf("Repeated Random Residue is: %lld \n", rep);
     printf("Hill Climbing Residue is: %lld \n", hill);
     printf("Simulated Annealing Residue is: %lld \n", sim);
-    
-    
-    long long int bestRes;
-    char* bestSol;
-    
-    if(rep < hill)
-    {
-        bestRes = rep;
-        bestSol = "Repeated Rand";
-    }
-    else
-    {
-        bestRes = hill;
-        bestSol = "Hill Climbing";
-    }
-    
-    if(sim < bestRes)
-    {
-        bestRes = sim;
-        bestSol = "Simulated Annealing";
-    }
-    
-    printf("Best solution is %s with %lld residue \n", bestSol, bestRes);
-
-    /***************/
-
-
-
-
-    int n = 100;
-    long long int* nums = malloc(sizeof(long long int) * n);
-    int kkarp[100];
-    int rand[100];
-    int hill[100];
-    int ann[100];
-    int randP[100];
-    int hillP[100];
-    int annP[100];
-    char* best[100];
-    char* bestP[100];
-
-    for(int i = 0; i < 100; i++)
-    {
-        nums = getrandNums(nums, n);
-        kkarp[i] = kk(nums, n);
-        rand[i] = repRand(nums, n);
-        hill[i] = hillClimb(nums, n);
-        ann[i] = simAnn(nums, n);
-        randP[i] = prerepRand(nums, n);
-        hillP[i] = prehillClimb(nums, n);
-        annP[i] = simAnn(nums, n);
-        best[i] = threeMin(rand[i], hill[i], ann[i]);
-        bestP[i] = threeMin(randP[i], hillP[i], annP[i]);
-
-    }
-
-    printArray(kkarp);
-    printArray(rand);
-    printArray( hill);
-    printArray(ann);
-    printArray(randP);
-    printArray(hillP);
-    printArray(annP);
-    printArray(best);
-    printArray(bestP);
-
-
-
-   /*long long int prep = prerepRand(nums, size);
-    long long int phill = prehillClimb(nums, size);
-    long long int psim = presimAnn(nums, size);
-
-
     printf("Pre-Partition Repeated Random Residue is: %lld \n", prep);
     printf("Pre-Partition Hill Climbing Residue is: %lld \n", phill);
-    printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);*/
-
+    printf("Pre-Partition Simulated Annealing Residue is: %lld \n", psim);
+    */
+    
+    /*
+    long long int prep;
+    long long int phill;
+    long long int psim;
+    long long int rep;
+    long long int hill;
+    long long int sim;
+    
+    int prepTime = 0;
+    int phillTime = 0;
+    int psimTime = 0;
+    int repTime = 0;
+    int hillTime = 0;
+    int simTime = 0;
     
 
-    free(nums);
+    
+    for(int j = 0; j < size; j++)
+    {
+        long long int* nums = malloc(sizeof(long long int) * size);
+        nums = getrandNums(nums, size);
+        
+        //For timing
+        clock_t start1 = clock(), diff1;
+        
+        prep = prerepRand(nums, size);
+        
+        // For timing
+        diff1 = clock() - start1;
+        prepTime += diff1 * 1000 / CLOCKS_PER_SEC;
+    
+        //For timing
+        clock_t start2 = clock(), diff2;
+        
+        phill = prehillClimb(nums, size);
+        
+        // For timing
+        diff2 = clock() - start2;
+        phillTime += diff2 * 1000 / CLOCKS_PER_SEC;
+    
+        //For timing
+        clock_t start3 = clock(), diff3;
+        
+        psim = presimAnn(nums, size);
+        
+        // For timing
+        diff3 = clock() - start3;
+        psimTime += diff3 * 1000 / CLOCKS_PER_SEC;
+        
+        //For timing
+        clock_t start4 = clock(), diff4;
+        
+        rep = repRand(nums, size);
+        
+        // For timing
+        diff4 = clock() - start4;
+        repTime += diff4 * 1000 / CLOCKS_PER_SEC;
+        
+        //For timing
+        clock_t start5 = clock(), diff5;
+        
+        hill = hillClimb(nums, size);
+        
+        // For timing
+        diff5 = clock() - start5;
+        hillTime += diff5 * 1000 / CLOCKS_PER_SEC;
+        
+        //For timing
+        clock_t start6 = clock(), diff6;
+        
+        sim = simAnn(nums, size);
+        
+        // For timing
+        diff6 = clock() - start6;
+        simTime += diff6 * 1000 / CLOCKS_PER_SEC;
+        
+    
+     
+        printf("%lld\n", hill);
+        printf("%lld\n", sim);
+        printf("%lld\n", prep);
+        printf("%lld\n", phill);
+        printf("%lld\n", psim);
+        free(nums);
+    }
+
+    prepTime = prepTime/size;
+    phillTime = phillTime/size;
+    psimTime = psimTime/size;
+    repTime = repTime/size;
+    hillTime = hillTime/size;
+    simTime = simTime/size;
+    
+    printf("Average miliseconds: %i\n", repTime);
+    printf("Average miliseconds: %i\n", hillTime);
+    printf("Average miliseconds: %i\n", simTime);
+    printf("Average miliseconds: %i\n", prepTime);
+    printf("Average miliseconds: %i\n", phillTime);
+    printf("Average miliseconds: %i\n", psimTime);
+    */
+
+    /*
+    long long int kkres;
+    int kkTime = 0;
+    
+    for(int j = 0; j < size; j++)
+    {
+        long long int* nums = malloc(sizeof(long long int) * size);
+        nums = getrandNums(nums, size);
+        
+        //For timing
+        clock_t startk = clock(), diffk;
+        
+        kkres = kk(nums, size);
+        
+        // For timing
+        diffk = clock() - startk;
+        kkTime += diffk * 1000 / CLOCKS_PER_SEC;
+        
+        printf("%lld\n", kkres);
+        
+        free(nums);
+    }
+    
+    kkTime = kkTime/size;
+    printf("Average miliseconds: %i\n", kkTime);
     
     
     return 0;
 }
+*/
